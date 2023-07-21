@@ -18,13 +18,14 @@ def process_docs():
     documents = loader.load()
     chunk_size_value = 1000
     chunk_overlap=100
+    
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size_value, chunk_overlap=chunk_overlap, length_function=len)
     texts = text_splitter.split_documents(documents)
 
     docembeddings = FAISS.from_documents(texts, OpenAIEmbeddings())
     docembeddings.save_local("llm_faiss_index")
     docembeddings = FAISS.load_local("llm_faiss_index",OpenAIEmbeddings())
-
+    
     return docembeddings
 
 def setup_qa_chain():
@@ -64,13 +65,16 @@ def setup_qa_chain():
 def getanswer(docembeddings, chain, query):
     relevant_chunks = docembeddings.similarity_search_with_score(query, k=4)
     chunk_docs=[]
+    
     for chunk in relevant_chunks:
         chunk_docs.append(chunk[0])
     results = chain({"input_documents": chunk_docs, "question": query})
     text_reference=""
+    
     for i in range(len(results["input_documents"])):
         text_reference += results["input_documents"][i].page_content
     text_reference = text_reference.replace("\n", "")
     output={"Answer":results["output_text"],"Reference":text_reference}
     output = {k: v.replace('\n', '') for k, v in output.items()}
+    
     return output
