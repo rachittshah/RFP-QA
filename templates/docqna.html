@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nexodus Document QnA</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center align-items-center vh-100">
+            <div class="col-md-8">
+                <h2 class="mb-4 text-center">Ask a question</h2>
+                <form id="question-form" action="/docqna" method="post">
+                    <div class="form-group">
+                        <label for="query-textarea">Enter your question:</label>
+                        <textarea id="query-textarea" name="query" class="form-control" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <div id="response-container" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            Response
+                        </div>
+                        <div class="card-body">
+                            <blockquote id="answer-block" class="blockquote mb-0"></blockquote>
+                            <footer id="references-block" class="blockquote-footer"></footer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('#question-form').on('submit', function(e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                type: 'POST',
+                url: '/docqna',
+                data: formData,
+                success: function(data) {
+                    console.log(data);
+                    $('#response-container').show();
+                    $('#answer-block').text('Answer: ' + data.Answer);
+                    $('#references-block').text('References: ' + data.Reference);
+                },
+                error: function(data) {
+                    alert('An error occurred during the request.');
+                }
+            });
+        });
+    </script>
+    
+</body>
+</html>
